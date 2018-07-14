@@ -18,6 +18,8 @@ performSim <- function(p, n){
 
 vals<-replicate(10000, performSim(100))
 
+# Power of a test
+
 # exe 2
 vals<-replicate(10000, performSim(0.5, 30))
 qqnorm(vals)
