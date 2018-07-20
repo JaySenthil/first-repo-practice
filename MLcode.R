@@ -55,18 +55,37 @@ table(iris$Species, clk)
 table(iris$Species, cth)
 
 # using PCA to reduce dimensions in iris data
-par(mfrow=c(1,1))
-irispca <- prcomp(iris[, -5])
+pairs(iris[,-5], col = iris[,5], pch = 19)
+irispca <- prcomp(iris[,-5])
 summary(irispca)
+var <- irispca$sdev^2
+(pve <- var/sum(var))
+cumsum(pve)
+# Preparing a barplot of percentage of variance
+barplot(pve, names.arg = c("PC1", "PC2", "PC3", "PC4"))
 
-plot(irispca)
-biplot(irispca)
+# Repeat on mtcars with PCA compare the need for scaling
+par(mfrow = c(1, 2))
+biplot(prcomp(mtcars, scale = FALSE), main = "No scaling")  ## 1
+biplot(prcomp(mtcars, scale = TRUE), main = "With scaling") ## 2
 
-PoV <- irispca$sdev^2/sum(irispca$sdev^2)
-barplot(PoV, names.arg = c("PC1", "PC2", "PC3", "PC4"))
+# Working with t-SNE
+library("Rtsne")
+uiris <- unique(iris[,1:5])
+iristsne <- Rtsne(uiris[,1:4])
+plot(iristsne$Y, col = uiris$Species)
 
-plot(irispca$x[,1], irispca$x[,2], col = iris$Species)
-plot(irispca$x[,3], irispca$x[,4], col = iris$Species)
-
-pcaData <- c(irispca$x[,1], irispca$x[,2])
-rcl <- stats::kmeans(pcaData, centers = 3, nstart = 10)
+# K-NN
+set.seed(12L)
+tr <- sample(150, 50)
+nw <- sample(150, 50)
+library(class)
+knnres <- knn(iris[tr, -5], iris[nw, -5], iris$Species[tr])
+head(knnres)
+table(knnres, iris$Species[nw])
+# How does k influence my dataset
+set.seed(12L)
+tr <- sample(150, 50)
+nw <- sample(150, 50)
+knnress_2 <- knn(iris[tr, -5], iris[nw, -5], iris$Species[tr], k= 5, prob = TRUE)
+table(knnress_2, iris$Species[nw])
